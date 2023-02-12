@@ -50,35 +50,65 @@ const Game = (function () {
 		if (_field[row][0] === '') {
 			return false;
 		}
-		return _field[row][0] === _field[row][1] && _field[row][0] === _field[row][2];
+		if (_field[row][0] === _field[row][1] && _field[row][0] === _field[row][2]) {
+			return [
+				[row, 0],
+				[row, 1],
+				[row, 2],
+			];
+		}
+		return null;
 	}
 
 	function _checkColumn(col) {
 		if (_field[0][col] === '') {
 			return false;
 		}
-		return _field[0][col] === _field[1][col] && _field[0][col] === _field[2][col];
+		if (_field[0][col] === _field[1][col] && _field[0][col] === _field[2][col]) {
+			return [
+				[0, col],
+				[1, col],
+				[2, col],
+			];
+		}
+		return null;
 	}
 
 	function _checkDiagonal() {
 		if (_field[1][1] === '') {
 			return false;
 		}
-		return (
-			(_field[1][1] === _field[0][0] && _field[1][1] === _field[2][2]) ||
-			(_field[1][1] === _field[0][2] && _field[1][1] === _field[2][0])
-		);
+		if (_field[1][1] === _field[0][0] && _field[1][1] === _field[2][2]) {
+			return [
+				[0, 0],
+				[1, 1],
+				[2, 2],
+			];
+		}
+		if (_field[1][1] === _field[0][2] && _field[1][1] === _field[2][0]) {
+			return [
+				[0, 2],
+				[1, 1],
+				[2, 0],
+			];
+		}
+		return null;
 	}
 
 	function _checkPosition(i, j) {
 		if (!((i + j) % 2)) {
 			// check corners and center
-			if (_checkDiagonal()) {
-				return true;
+			const diagonal = _checkDiagonal();
+			if (diagonal) {
+				return diagonal;
 			}
 		}
 		// check edges
-		return _checkRow(i) || _checkColumn(j);
+		const row = _checkRow(i);
+		if (row) {
+			return row;
+		}
+		return _checkColumn(j);
 	}
 
 	return {
@@ -117,8 +147,7 @@ function reset() {
 	player1NameLabel.innerText = player1.name;
 	player2NameLabel.innerText = player2.name;
 
-	player1ScoreLabel.innerText = player1.getScore();
-	player2ScoreLabel.innerText = player2.getScore();
+	updateScore();
 
 	Game.reset();
 
@@ -141,15 +170,22 @@ function makeField() {
 }
 
 function makeTurn(i, j) {
-	try {
-		if (activePlayer.makeTurn(i, j)) {
-			console.log(activePlayer.name, 'win');
-		}
-	} catch (error) {
-		return;
-	}
+	const line = activePlayer.makeTurn(i, j);
 	this.innerText = activePlayer.mark;
-	switchActive();
+	if (line) {
+		win(line);
+	} else {
+		switchActive();
+	}
+}
+
+function win(line) {
+	for (let i = 0; i < 3; ++i) {
+		cells[line[i][0]][line[i][1]].classList.add('win');
+	}
+
+	activePlayer.addScore();
+	updateScore();
 }
 
 function switchActive() {
@@ -164,6 +200,11 @@ function makeCell() {
 	gameGrid.appendChild(cell);
 
 	return cell;
+}
+
+function updateScore() {
+	player1ScoreLabel.innerText = player1.getScore();
+	player2ScoreLabel.innerText = player2.getScore();
 }
 
 function PlayerFactory(name, isXPlayer) {
