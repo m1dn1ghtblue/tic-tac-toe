@@ -1,6 +1,16 @@
 'use strict';
 
-let GameField = (function () {
+class GameError extends Error {
+	constructor(message) {
+		super(message);
+	}
+
+	static InvalidCoordinates(i, j) {
+		return new GameError(`Can't place mark on coordinates: ${i} ${j}`);
+	}
+}
+
+const GameField = (function () {
 	const _field = [
 		['', '', ''],
 		['', '', ''],
@@ -79,12 +89,10 @@ let GameField = (function () {
 	};
 })();
 
-class GameError extends Error {
-	constructor(message) {
-		super(message);
-	}
-
-	static InvalidCoordinates(i, j) {
-		return new GameError(`Can't place mark on coordinates: ${i} ${j}`);
-	}
-}
+const PlayerFactory = function (name, isXPlayer) {
+	return {
+		name: name,
+		score: 0,
+		turnFunction: isXPlayer ? GameField.putX : GameField.putO,
+	};
+};
