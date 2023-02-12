@@ -120,26 +120,30 @@ const Game = (function () {
 })();
 
 const gameGrid = document.getElementById('game-field');
-const restartButton = document.getElementById('restart-btn');
+const newGameButton = document.getElementById('new-game-btn');
 const player1Label = document.getElementById('player-1-label');
 const player2Label = document.getElementById('player-2-label');
 const player1NameLabel = document.getElementById('player-1-name');
 const player2NameLabel = document.getElementById('player-2-name');
 const player1ScoreLabel = document.getElementById('player-1-score');
 const player2ScoreLabel = document.getElementById('player-2-score');
-
-restartButton.addEventListener('click', reset);
+const restartButton = document.getElementById('restart-btn');
+newGameButton.addEventListener('click', newGame);
+restartButton.addEventListener('click', restart);
 
 const cells = [];
 let player1 = null;
 let player2 = null;
 let activePlayer = player1;
+let turns = 0;
+let playable = false;
 
-reset();
+newGame();
 
-function reset() {
+function newGame() {
 	player1 = PlayerFactory('Player 1', true);
 	player2 = PlayerFactory('Player 2', false);
+
 	activePlayer = player1;
 
 	player1Label.classList.add('active');
@@ -149,9 +153,15 @@ function reset() {
 
 	updateScore();
 
-	Game.reset();
+	restart();
+}
 
+function restart() {
+	Game.reset();
 	makeField();
+	turns = 0;
+	playable = true;
+	restartButton.disabled = true;
 }
 
 function makeField() {
@@ -170,13 +180,31 @@ function makeField() {
 }
 
 function makeTurn(i, j) {
-	const line = activePlayer.makeTurn(i, j);
-	this.innerText = activePlayer.mark;
-	if (line) {
-		win(line);
-	} else {
-		switchActive();
+	if (!playable) {
+		return;
 	}
+
+	try {
+		const line = activePlayer.makeTurn(i, j);
+		this.innerText = activePlayer.mark;
+		if (line) {
+			win(line);
+		}
+
+		switchActive();
+
+		turns++;
+		if (turns == 9) {
+			stop();
+		}
+	} catch {
+		console.log('cell is ocuupied!');
+	}
+}
+
+function stop() {
+	playable = false;
+	restartButton.disabled = false;
 }
 
 function win(line) {
@@ -186,6 +214,7 @@ function win(line) {
 
 	activePlayer.addScore();
 	updateScore();
+	stop();
 }
 
 function switchActive() {
