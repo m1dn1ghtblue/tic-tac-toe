@@ -90,9 +90,19 @@ const GameField = (function () {
 })();
 
 const PlayerFactory = function (name, isXPlayer) {
+	let _score = 0;
+	function addScore() {
+		_score++;
+	}
+
+	function getScore() {
+		return _score;
+	}
+
 	return {
-		name: name,
-		score: 0,
+		name,
+		addScore,
+		getScore,
 		turnFunction: isXPlayer ? GameField.putX : GameField.putO,
 	};
 };
