@@ -31,9 +31,39 @@ main {
 	gap: 64px;
 }
 
-#player-info {
+#player-section {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
+	gap: 148px;
+}
+
+.player-label {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 24px;
+	font-size: 1.4rem;
+	border-radius: 32px;
+	background-color: var(--color-main-light);
+	transition-duration: 0.3s;
+}
+
+.player-label.active > .player-name {
+	background-color: var(--color-accent);
+	color: white;
+}
+
+.player-score {
+	margin: 0 24px;
+	color: var(--color-main-dark);
+}
+
+.player-name {
+	background-color: var(--color-main-light);
+	border-radius: 32px;
+	background-color: var(--color-main-dark);
+	padding: 16px 32px;
+	color: var(--color-bg);
 }
 
 #game-field {
