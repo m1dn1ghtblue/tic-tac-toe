@@ -97,19 +97,20 @@ const player1NameLabel = document.getElementById('player-1-name');
 const player2NameLabel = document.getElementById('player-2-name');
 const player1ScoreLabel = document.getElementById('player-1-score');
 const player2ScoreLabel = document.getElementById('player-2-score');
+
 restartButton.addEventListener('click', reset);
 
 const cells = [];
 let player1 = null;
 let player2 = null;
-let player1Turn = true;
+let activePlayer = player1;
 
 reset();
 
 function reset() {
 	player1 = PlayerFactory('Player 1', true);
 	player2 = PlayerFactory('Player 2', false);
-	player1Turn = true;
+	activePlayer = player1;
 
 	player1Label.classList.add('active');
 	player2Label.classList.remove('active');
@@ -121,6 +122,10 @@ function reset() {
 
 	Game.reset();
 
+	makeField();
+}
+
+function makeField() {
 	while (gameGrid.firstChild) {
 		gameGrid.removeChild(gameGrid.firstChild);
 	}
@@ -128,15 +133,29 @@ function reset() {
 	for (let i = 0; i < 3; ++i) {
 		cells[i] = [];
 		for (let j = 0; j < 3; ++j) {
-			cells[i].push(makeCell());
+			let cell = makeCell();
+			cells[i].push(cell);
+			cells[i][j].addEventListener('click', makeTurn.bind(cell, i, j));
 		}
 	}
+}
+
+function makeTurn(i, j) {
+	try {
+		if (activePlayer.makeTurn(i, j)) {
+			console.log(activePlayer.name, 'win');
+		}
+	} catch (error) {
+		return;
+	}
+	this.innerText = activePlayer.mark;
+	switchActive();
 }
 
 function switchActive() {
 	player1Label.classList.toggle('active');
 	player2Label.classList.toggle('active');
-	player1Turn = !player1Turn;
+	activePlayer = activePlayer === player1 ? player2 : player1;
 }
 
 function makeCell() {
@@ -161,6 +180,7 @@ function PlayerFactory(name, isXPlayer) {
 		name,
 		addScore,
 		getScore,
-		turnFunction: isXPlayer ? Game.putX : Game.putO,
+		makeTurn: isXPlayer ? Game.putX : Game.putO,
+		mark: isXPlayer ? 'X' : 'O',
 	};
 }
