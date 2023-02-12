@@ -5,10 +5,19 @@
 
 html, button {
 	font-size: 16px;
+	color: var(--color-black);
 }
 
 :root {
-	
+	--color-bg: #e0fbfc;
+	--color-black: #293241;
+	--color-accent: #ee6c4d;
+	--color-main-light: #98c1d9;
+	--color-main-dark: #3d5a80;
+}
+
+body {
+	background-color: var(--color-bg);
 }
 
 main {
@@ -29,6 +38,6 @@ main {
 }
 
 .cell {
-	background-color: aqua;
+	background-color: var(--color-main-light);
 	border-radius: 12px;
 }
