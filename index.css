@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Cabin:wght@500;700&display=swap');
+
 * {
 	margin: 0;
 	padding: 0;
@@ -5,6 +7,7 @@
 
 html, button {
 	font-size: 16px;
+    font-family: 'Cabin', sans-serif;
 	color: var(--color-black);
 }
 
@@ -28,7 +31,15 @@ main {
 	gap: 64px;
 }
 
+#player-info {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+}
+
 #game-field {
+	font-family: 'Architects Daughter', cursive;
+	font-size: 96px;
+	color: var(--color-black);
 	width: 500px;
 	height: 500px;
 	display: grid;
@@ -40,4 +51,16 @@ main {
 .cell {
 	background-color: var(--color-main-light);
 	border-radius: 12px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.cell:hover {
+	cursor: pointer;
+	box-shadow: 0px 4px 10px 1px rgba(34, 60, 80, 0.2);
+}
+
+.cell.win {
+	background-color: var(--color-accent);
 }
