@@ -98,7 +98,7 @@ main {
 }
 
 #robot-icon {
-	width: 32px;
+	width: 36px;
 	margin-right: 24px;
 	cursor: pointer;
 }
@@ -146,7 +146,7 @@ main {
 button {
 	width: 200px;
 	border: none;
-	background-color: var(--color-main-dark);
+	background-color: var(--color-black);
 	color: var(--color-bg);
 	font-size: 1.4rem;
 	padding: 16px 32px;
@@ -165,4 +165,8 @@ button:disabled {
 	cursor: not-allowed;
 	background-color: var(--color-main-light);
 	box-shadow: none;
+}
+
+#new-game-btn {
+	background-color: var(--color-main-dark);
 }
