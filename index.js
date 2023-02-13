@@ -261,7 +261,7 @@ function switchActive() {
 	player2Label.classList.toggle('active');
 	activePlayer = activePlayer === player1 ? player2 : player1;
 
-	if (activePlayer.autoTurn) {
+	if (activePlayer.autoTurn && playable) {
 		activePlayer.autoTurn();
 	}
 }
