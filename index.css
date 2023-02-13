@@ -48,18 +48,23 @@ main {
 #player-section {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
-	gap: 148px;
+	gap: 180px;
 }
 
 .player-label {
-	display: flex;
-	justify-content: space-between;
+	width: 320px;
+	grid-template-columns: repeat(2, 1fr);
+	display: grid;
 	align-items: center;
 	gap: 24px;
 	font-size: 1.4rem;
 	border-radius: 32px;
 	background-color: var(--color-main-light);
 	transition-duration: 0.3s;
+}
+
+#player-1-label {
+	justify-self: end;
 }
 
 .player-label.active > .player-name {
@@ -79,6 +84,23 @@ main {
 	padding: 16px 32px;
 	color: var(--color-bg);
 	transition-duration: 0.3s;
+}
+
+#robot-menu {
+	display: flex;
+	gap: 16px;
+	border-radius: 32px;
+	transition-duration: 0.3s;
+}
+
+#robot-menu.active {
+	background-color: var(--color-black);
+}
+
+#robot-icon {
+	width: 32px;
+	margin-right: 24px;
+	cursor: pointer;
 }
 
 #game-field {

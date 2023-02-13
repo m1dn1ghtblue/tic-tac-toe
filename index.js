@@ -128,8 +128,12 @@ const player2NameLabel = document.getElementById('player-2-name');
 const player1ScoreLabel = document.getElementById('player-1-score');
 const player2ScoreLabel = document.getElementById('player-2-score');
 const restartButton = document.getElementById('restart-btn');
+const robotButton = document.getElementById('robot-icon');
+const robotLabel = document.getElementById('robot-menu');
+
 newGameButton.addEventListener('click', newGame);
 restartButton.addEventListener('click', restart);
+robotButton.addEventListener('click', switchRobot);
 
 const cells = [];
 let player1 = null;
@@ -137,12 +141,23 @@ let player2 = null;
 let activePlayer = player1;
 let turns = 0;
 let playable = false;
+let botStateId = 0;
+
+const easyBotIconUrl = './images/robot-easy.svg';
+const hardBotIconUrl = './images/robot-hard.svg';
+const botOffIconUrl = './images/robot-off.svg';
+
+const botStates = [
+	{ active: false, name: 'Player 2', icon: botOffIconUrl },
+	{ active: true, name: 'Easy bot', icon: easyBotIconUrl },
+	{ active: true, name: 'Hard bot', icon: hardBotIconUrl },
+];
 
 newGame();
 
 function newGame() {
-	player1 = PlayerFactory('Player 1', true);
-	player2 = PlayerFactory('Player 2', false);
+	player1 = playerFactory('Player 1', true);
+	player2 = playerFactory(botStates[botStateId].name, false);
 
 	activePlayer = player1;
 
@@ -154,6 +169,18 @@ function newGame() {
 	updateScore();
 
 	restart();
+}
+
+function switchRobot() {
+	botStateId = (botStateId + 1) % botStates.length;
+	if (botStates[botStateId].active) {
+		robotLabel.classList.add('active');
+	} else {
+		robotLabel.classList.remove('active');
+	}
+
+	robotButton.src = botStates[botStateId].icon;
+	newGame();
 }
 
 function restart() {
@@ -174,7 +201,7 @@ function makeField() {
 		for (let j = 0; j < 3; ++j) {
 			let cell = makeCell();
 			cells[i].push(cell);
-			cells[i][j].addEventListener('click', makeTurn.bind(cell, i, j));
+			cells[i][j].addEventListener('click', makeTurn.bind(undefined, i, j));
 		}
 	}
 }
@@ -184,21 +211,17 @@ function makeTurn(i, j) {
 		return;
 	}
 
-	try {
-		const line = activePlayer.makeTurn(i, j);
-		this.innerText = activePlayer.mark;
-		if (line) {
-			win(line);
-		}
+	const line = activePlayer.makeTurn(i, j);
+	cells[i][j].innerText = activePlayer.mark;
+	if (line) {
+		win(line);
+	}
 
-		switchActive();
+	switchActive();
 
-		turns++;
-		if (turns == 9) {
-			stop();
-		}
-	} catch {
-		console.log('cell is ocuupied!');
+	turns++;
+	if (turns == 9) {
+		stop();
 	}
 }
 
@@ -236,7 +259,7 @@ function updateScore() {
 	player2ScoreLabel.innerText = player2.getScore();
 }
 
-function PlayerFactory(name, isXPlayer) {
+function playerFactory(name, isXPlayer) {
 	let _score = 0;
 	function addScore() {
 		_score++;
