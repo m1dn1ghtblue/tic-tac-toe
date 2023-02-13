@@ -37,6 +37,19 @@ const Game = (function () {
 		return _field[i][j];
 	}
 
+	function getEmptyCells() {
+		let empty = [];
+		for (let i = 0; i < 3; ++i) {
+			for (let j = 0; j < 3; ++j) {
+				if (_field[i][j] === '') {
+					empty.push([i, j]);
+				}
+			}
+		}
+
+		return empty;
+	}
+
 	function _putMark(i, j, mark) {
 		if (i >= 0 && i <= 2 && j >= 0 && j <= 2 && _field[i][j] === '') {
 			_field[i][j] = mark;
@@ -116,6 +129,7 @@ const Game = (function () {
 		putO,
 		putX,
 		reset,
+		getEmptyCells,
 	};
 })();
 
@@ -139,25 +153,24 @@ const cells = [];
 let player1 = null;
 let player2 = null;
 let activePlayer = player1;
-let turns = 0;
 let playable = false;
-let botStateId = 0;
+let player2StateId = 0;
 
 const easyBotIconUrl = './images/robot-easy.svg';
 const hardBotIconUrl = './images/robot-hard.svg';
 const botOffIconUrl = './images/robot-off.svg';
 
-const botStates = [
-	{ active: false, name: 'Player 2', icon: botOffIconUrl },
-	{ active: true, name: 'Easy bot', icon: easyBotIconUrl },
-	{ active: true, name: 'Hard bot', icon: hardBotIconUrl },
+const playerStates = [
+	{ active: false, name: 'Player 2', icon: botOffIconUrl, autoTurn: null },
+	{ active: true, name: 'Easy bot', icon: easyBotIconUrl, autoTurn: randomTurn },
+	{ active: true, name: 'Hard bot', icon: hardBotIconUrl, autoTurn: null },
 ];
 
 newGame();
 
 function newGame() {
 	player1 = playerFactory('Player 1', true);
-	player2 = playerFactory(botStates[botStateId].name, false);
+	player2 = playerFactory(playerStates[player2StateId].name, false, playerStates[player2StateId].autoTurn);
 
 	activePlayer = player1;
 
@@ -172,23 +185,27 @@ function newGame() {
 }
 
 function switchRobot() {
-	botStateId = (botStateId + 1) % botStates.length;
-	if (botStates[botStateId].active) {
+	player2StateId = (player2StateId + 1) % playerStates.length;
+
+	if (playerStates[player2StateId].active) {
 		robotLabel.classList.add('active');
 	} else {
 		robotLabel.classList.remove('active');
 	}
 
-	robotButton.src = botStates[botStateId].icon;
+	robotButton.src = playerStates[player2StateId].icon;
+
 	newGame();
 }
 
 function restart() {
 	Game.reset();
 	makeField();
-	turns = 0;
 	playable = true;
 	restartButton.disabled = true;
+	if (activePlayer.autoTurn) {
+		activePlayer.autoTurn();
+	}
 }
 
 function makeField() {
@@ -217,12 +234,11 @@ function makeTurn(i, j) {
 		win(line);
 	}
 
-	switchActive();
-
-	turns++;
-	if (turns == 9) {
+	if (Game.getEmptyCells().length === 0) {
 		stop();
 	}
+
+	switchActive();
 }
 
 function stop() {
@@ -244,6 +260,10 @@ function switchActive() {
 	player1Label.classList.toggle('active');
 	player2Label.classList.toggle('active');
 	activePlayer = activePlayer === player1 ? player2 : player1;
+
+	if (activePlayer.autoTurn) {
+		activePlayer.autoTurn();
+	}
 }
 
 function makeCell() {
@@ -259,7 +279,13 @@ function updateScore() {
 	player2ScoreLabel.innerText = player2.getScore();
 }
 
-function playerFactory(name, isXPlayer) {
+function randomTurn() {
+	const empty = Game.getEmptyCells();
+	const coordinates = empty[Math.floor(Math.random() * empty.length)];
+	makeTurn(...coordinates);
+}
+
+function playerFactory(name, isXPlayer, autoTurn = null) {
 	let _score = 0;
 	function addScore() {
 		_score++;
@@ -275,5 +301,6 @@ function playerFactory(name, isXPlayer) {
 		getScore,
 		makeTurn: isXPlayer ? Game.putX : Game.putO,
 		mark: isXPlayer ? 'X' : 'O',
+		autoTurn,
 	};
 }
