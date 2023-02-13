@@ -37,6 +37,10 @@ const Game = (function () {
 		return _field[i][j];
 	}
 
+	function clearCell(i, j) {
+		_field[i][j] = '';
+	}
+
 	function getEmptyCells() {
 		let empty = [];
 		for (let i = 0; i < 3; ++i) {
@@ -130,6 +134,7 @@ const Game = (function () {
 		putX,
 		reset,
 		getEmptyCells,
+		clearCell,
 	};
 })();
 
@@ -163,7 +168,7 @@ const botOffIconUrl = './images/robot-off.svg';
 const playerStates = [
 	{ active: false, name: 'Player 2', icon: botOffIconUrl, autoTurn: null },
 	{ active: true, name: 'Easy bot', icon: easyBotIconUrl, autoTurn: randomTurn },
-	{ active: true, name: 'Hard bot', icon: hardBotIconUrl, autoTurn: null },
+	{ active: true, name: 'Hard bot', icon: hardBotIconUrl, autoTurn: smartTurn },
 ];
 
 newGame();
@@ -283,6 +288,57 @@ function randomTurn() {
 	const empty = Game.getEmptyCells();
 	const coordinates = empty[Math.floor(Math.random() * empty.length)];
 	makeTurn(...coordinates);
+}
+
+function smartTurn() {
+	const empty = Game.getEmptyCells();
+
+	let maxScore = -Infinity;
+	let optimalMove = empty[0];
+	for (let i = 0; i < empty.length; ++i) {
+		let score = solver(Game.putO(...empty[i]), false);
+		Game.clearCell(...empty[i]);
+		console.log(`cell[${empty[i][0]}][${empty[i][1]}]: ${score}`);
+		if (score > maxScore) {
+			maxScore = score;
+			optimalMove = empty[i];
+		}
+	}
+	console.log(maxScore);
+	makeTurn(...optimalMove);
+}
+
+function solver(line, oTurn) {
+	if (line) {
+		return oTurn === true ? -1 : 1;
+	}
+	const empty = Game.getEmptyCells();
+	if (empty.length === 0) {
+		return 0;
+	}
+
+	if (oTurn) {
+		let maxScore = -2;
+		for (let i = 0; i < empty.length; ++i) {
+			let score = solver(Game.putO(...empty[i]), false);
+			if (score > maxScore) {
+				maxScore = score;
+			}
+			Game.clearCell(...empty[i]);
+		}
+
+		return maxScore;
+	} else {
+		let minScore = 2;
+		for (let i = 0; i < empty.length; ++i) {
+			let score = solver(Game.putX(...empty[i]), true);
+			if (score < minScore) {
+				minScore = score;
+			}
+			Game.clearCell(...empty[i]);
+		}
+		return minScore;
+	}
 }
 
 function playerFactory(name, isXPlayer, autoTurn = null) {
